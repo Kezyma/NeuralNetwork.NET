@@ -170,7 +170,7 @@ namespace NeuralNetworkNET.APIs.Structs
         /// <param name="m">The input matrix to copy</param>
         /// <param name="tensor">The resulting instance</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void From([NotNull] float[,] m, out Tensor tensor)
+        public static unsafe void From([JetBrains.Annotations.NotNull] float[,] m, out Tensor tensor)
         {
             fixed (float* pm = m)
                 From(pm, m.GetLength(0), m.GetLength(1), out tensor);
@@ -184,7 +184,7 @@ namespace NeuralNetworkNET.APIs.Structs
         /// <param name="chw">The width of the final <see cref="Tensor"/></param>
         /// <param name="tensor">The resulting instance</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void From([NotNull] float[] v, int n, int chw, out Tensor tensor)
+        public static unsafe void From([JetBrains.Annotations.NotNull] float[] v, int n, int chw, out Tensor tensor)
         {
             if (n * chw != v.Length) throw new ArgumentOutOfRangeException(nameof(v), "The input vector doesn't have a valid size");
             fixed (float* pv = v)
@@ -240,7 +240,7 @@ namespace NeuralNetworkNET.APIs.Structs
         /// </summary>
         /// <param name="array">The input array to copy</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void Overwrite([NotNull] float[] array)
+        public unsafe void Overwrite([JetBrains.Annotations.NotNull] float[] array)
         {
             if (array.Length != Size) throw new ArgumentException("The input array doesn't have the same size as the target");
             int bytes = sizeof(float) * Size;
@@ -262,7 +262,8 @@ namespace NeuralNetworkNET.APIs.Structs
         /// Copies the contents of the unmanaged array to a managed <see cref="Array"/>
         /// </summary>
         /// <param name="keepAlive">Indicates whether or not to automatically dispose the current instance</param>
-        [Pure, NotNull]
+        [Pure]
+        [JetBrains.Annotations.NotNull]
         public unsafe float[] ToArray(bool keepAlive = true)
         {
             if (Ptr == IntPtr.Zero) return new float[0];
@@ -276,7 +277,8 @@ namespace NeuralNetworkNET.APIs.Structs
         /// Copies the contents of the unmanaged array to a managed 2D <see cref="Array"/>
         /// </summary>
         /// <param name="keepAlive">Indicates whether or not to automatically dispose the current instance</param>
-        [Pure, NotNull]
+        [Pure]
+        [JetBrains.Annotations.NotNull]
         public unsafe float[,] ToArray2D(bool keepAlive = true)
         {
             if (Ptr == IntPtr.Zero) return new float[0, 0];
@@ -321,7 +323,7 @@ namespace NeuralNetworkNET.APIs.Structs
         /// <remarks>The <see langword="params"/> usage in the method arguments will cause a heap allocation
         /// when this method is called. Manually calling <see cref="Free()"/> on each target <see cref="Tensor"/>
         /// should have a slightly better performance. The same is true for the <see cref="TryFree(Tensor[])"/> method as well.</remarks>
-        public static unsafe void Free([NotNull] params Tensor[] tensors)
+        public static unsafe void Free([JetBrains.Annotations.NotNull] params Tensor[] tensors)
         {
             fixed (Tensor* p = tensors)
                 for (int i = 0; i < tensors.Length; i++)
@@ -332,7 +334,7 @@ namespace NeuralNetworkNET.APIs.Structs
         /// Frees the input sequence of <see cref="Tensor"/> instances, if possible
         /// </summary>
         /// <param name="tensors">The tensors to free</param>
-        public static unsafe void TryFree([NotNull] params Tensor[] tensors)
+        public static unsafe void TryFree([JetBrains.Annotations.NotNull] params Tensor[] tensors)
         {
             fixed (Tensor* p = tensors)
                 for (int i = 0; i < tensors.Length; i++)
@@ -359,7 +361,7 @@ namespace NeuralNetworkNET.APIs.Structs
             /// <summary>
             /// Gets a preview of the underlying memory area wrapped by this instance
             /// </summary>
-            [NotNull]
+            [JetBrains.Annotations.NotNull]
             [SuppressMessage("ReSharper", "MemberCanBePrivate.Local")]
             [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
             public IEnumerable<float[]> RowsPreview { get; }

@@ -2,6 +2,7 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using NeuralNetworkNET.APIs;
 using NeuralNetworkNET.APIs.Enums;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
@@ -15,6 +16,17 @@ namespace NeuralNetworkNET.Helpers
     /// </summary>
     internal static class ImageLoader
     {
+        
+        #region Image Extension
+        public static Span<T> GetPixelSpan<T>(this Image<T> imageRef) where T : unmanaged, IPixel<T>
+        {
+            var memoryFootprint = new T[imageRef.Width * imageRef.Height];
+            var pixelSpan = new Span<T>(memoryFootprint);
+            imageRef.CopyPixelDataTo(pixelSpan);
+            return pixelSpan;
+        }
+        #endregion
+        
         /// <summary>
         /// Loads the target image and applies the requested changes, then converts it to a dataset sample
         /// </summary>
@@ -22,12 +34,12 @@ namespace NeuralNetworkNET.Helpers
         /// <param name="normalization">The image normalization mode to apply</param>
         /// <param name="modify">The optional changes to apply to the image</param>
         [Pure, NotNull]
-        public static float[] Load<TPixel>([NotNull] string path, ImageNormalizationMode normalization, [CanBeNull] Action<IImageProcessingContext<TPixel>> modify) where TPixel : struct, IPixel<TPixel>
+        public static float[] Load<TPixel>([NotNull] string path, ImageNormalizationMode normalization, [CanBeNull] Action<IImageProcessingContext> modify) where TPixel : unmanaged, IPixel<TPixel>
         {
             using (Image<TPixel> image = Image.Load<TPixel>(path))
             {
                 if (modify != null) image.Mutate(modify);
-                if (typeof(TPixel) == typeof(Alpha8)) return Load(image as Image<Alpha8>, normalization);
+                if (typeof(TPixel) == typeof(A8)) return Load(image as Image<A8>, normalization);
                 if (typeof(TPixel) == typeof(Rgb24)) return Load(image as Image<Rgb24>, normalization);
                 if (typeof(TPixel) == typeof(Argb32)) return Load(image as Image<Argb32>, normalization);
                 if (typeof(TPixel) == typeof(Rgba32)) return Load(image as Image<Rgba32>, normalization);
@@ -101,11 +113,11 @@ namespace NeuralNetworkNET.Helpers
 
         // Loads an ALPHA8 image
         [Pure, NotNull]
-        private static unsafe float[] Load(Image<Alpha8> image, ImageNormalizationMode normalization)
+        private static unsafe float[] Load(Image<A8> image, ImageNormalizationMode normalization)
         {
             int resolution = image.Height * image.Width;
             float[] sample = new float[resolution];
-            fixed (Alpha8* p0 = image.GetPixelSpan())
+            fixed (A8* p0 = image.GetPixelSpan())
             fixed (float* psample = sample)
                 for (int i = 0; i < resolution; i++)
                 {
@@ -130,7 +142,7 @@ namespace NeuralNetworkNET.Helpers
         /// <param name="normalization">The normalization mode to use</param>
         [Pure]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static Vector4 Normalize<TPixel>(this TPixel pixel, ImageNormalizationMode normalization) where TPixel : struct, IPixel<TPixel>
+        private static Vector4 Normalize<TPixel>(this TPixel pixel, ImageNormalizationMode normalization) where TPixel : unmanaged, IPixel<TPixel>
         {
             switch (normalization)
             {

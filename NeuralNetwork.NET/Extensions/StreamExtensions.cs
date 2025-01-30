@@ -75,7 +75,7 @@ namespace NeuralNetworkNET.Extensions
             // Read the shuffled bytes
             float[] v = new float[n];
             byte[] temp = new byte[n * sizeof(float)];
-            stream.Read(temp, 0, temp.Length);
+            stream.ReadExactly(temp);
 
             // Unshuffle in parallel
             unsafe void Kernel(int i)

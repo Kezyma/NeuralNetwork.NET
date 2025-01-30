@@ -151,7 +151,7 @@ namespace NeuralNetworkNET.APIs.Datasets
                         // Image data
                         fixed (float* px = x)
                         {
-                            stream.Read(temp, 0, SampleSize);
+                            stream.ReadExactly(temp, 0, SampleSize);
                             for (int j = 0; j < ImageSize; j++)
                             {
                                 px[j] = ptemp[j] / 255f; // Normalized samples
@@ -186,7 +186,7 @@ namespace NeuralNetworkNET.APIs.Datasets
                         int
                             coarse = stream.ReadByte(),
                             fine = stream.ReadByte();
-                        stream.Read(temp, 0, SampleSize);
+                        stream.ReadExactly(temp, 0, SampleSize);
                         using (Image<Rgb24> image = new Image<Rgb24>(32, 32))
                             fixed (Rgb24* p0 = image.GetPixelSpan())
                             {

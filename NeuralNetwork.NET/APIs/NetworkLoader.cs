@@ -7,7 +7,6 @@ using NeuralNetworkNET.APIs.Enums;
 using NeuralNetworkNET.Extensions;
 using NeuralNetworkNET.Networks.Implementations;
 using NeuralNetworkNET.Networks.Layers.Cpu;
-using NeuralNetworkNET.Networks.Layers.Cuda;
 
 namespace NeuralNetworkNET.APIs
 {
@@ -96,25 +95,6 @@ namespace NeuralNetworkNET.APIs
             }
         }
 
-        /// <summary>
-        /// Tries to deserialize a Cuda-powered network layer
-        /// </summary>
-        /// <param name="stream">The source <see cref="Stream"/></param>
-        /// <param name="type">The target network layer type</param>
-        [MustUseReturnValue, CanBeNull]
-        internal static INetworkLayer CuDnnLayerDeserialize([NotNull] Stream stream, LayerType type)
-        {
-            switch (type)
-            {
-                case LayerType.FullyConnected: return CuDnnFullyConnectedLayer.Deserialize(stream);
-                case LayerType.Convolutional: return CuDnnConvolutionalLayer.Deserialize(stream);
-                case LayerType.Pooling: return CuDnnPoolingLayer.Deserialize(stream);
-                case LayerType.Softmax: return CuDnnSoftmaxLayer.Deserialize(stream);
-                case LayerType.Inception: return CuDnnInceptionLayer.Deserialize(stream);
-                default: return null;
-            }
-        }
-        
         #endregion
     }
 }

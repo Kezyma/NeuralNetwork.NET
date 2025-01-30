@@ -92,9 +92,9 @@ namespace NeuralNetworkNET.APIs.Structs
         /// <param name="width">The width of the input image</param>
         [PublicAPI]
         [Pure]
-        public static TensorInfo Image<TPixel>(int height, int width) where TPixel : struct, IPixel<TPixel>
+        public static TensorInfo Image<TPixel>(int height, int width) where TPixel : unmanaged, IPixel<TPixel>
         {
-            if (typeof(TPixel) == typeof(Alpha8)) return new TensorInfo(height, width, 1);
+            if (typeof(TPixel) == typeof(A8)) return new TensorInfo(height, width, 1);
             if (typeof(TPixel) == typeof(Rgb24)) return new TensorInfo(height, width, 3);
             if (typeof(TPixel) == typeof(Argb32) || typeof(TPixel) == typeof(Rgba32)) return new TensorInfo(height, width, 4);
             throw new InvalidOperationException($"The {typeof(TPixel).Name} pixel format isn't currently supported");

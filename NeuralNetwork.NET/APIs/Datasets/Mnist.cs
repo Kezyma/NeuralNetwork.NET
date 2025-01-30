@@ -124,8 +124,8 @@ namespace NeuralNetworkNET.APIs.Datasets
                 float[,]
                     x = new float[count, SampleSize],
                     y = new float[count, 10];
-                xGzip.Read(new byte[16], 0, 16);
-                yGzip.Read(new byte[8], 0, 8);
+                xGzip.ReadExactly(new byte[16], 0, 16);
+                yGzip.ReadExactly(new byte[8], 0, 8);
                 byte[] temp = new byte[SampleSize];
                 fixed (float* px = x, py = y)
                 fixed (byte* ptemp = temp)
@@ -133,7 +133,7 @@ namespace NeuralNetworkNET.APIs.Datasets
                     for (int i = 0; i < count; i++)
                     {
                         // Read the image pixel values
-                        xGzip.Read(temp, 0, SampleSize);
+                        xGzip.ReadExactly(temp, 0, SampleSize);
                         int offset = i * SampleSize;
                         for (int j = 0; j < SampleSize; j++)
                             px[offset + j] = ptemp[j] / 255f;
@@ -160,8 +160,8 @@ namespace NeuralNetworkNET.APIs.Datasets
                 xGzip = new GZipStream(inputs, CompressionMode.Decompress),
                 yGzip = new GZipStream(labels, CompressionMode.Decompress))
             {
-                xGzip.Read(new byte[16], 0, 16);
-                yGzip.Read(new byte[8], 0, 8);
+                xGzip.ReadExactly(new byte[16], 0, 16);
+                yGzip.ReadExactly(new byte[8], 0, 8);
                 byte[] temp = new byte[SampleSize];
                 fixed (byte* ptemp = temp)
                 {
@@ -169,7 +169,7 @@ namespace NeuralNetworkNET.APIs.Datasets
                     for (int i = 0; i < count; i++)
                     {
                         // Read the image pixel values
-                        xGzip.Read(temp, 0, SampleSize);
+                        xGzip.ReadExactly(temp, 0, SampleSize);
                         int label = yGzip.ReadByte();
                         using (Image<Rgb24> image = new Image<Rgb24>(28, 28))
                             fixed (Rgb24* p0 = image.GetPixelSpan())

@@ -246,9 +246,7 @@ namespace NeuralNetworkNET.Networks.Graph
                 {
                     case ComputationGraphNodeType.Processing:
                         if (!stream.TryRead(out LayerType layerType)) return null;
-                        INetworkLayer layer = null;
-                        if (preference == ExecutionModePreference.Cuda) layer = NetworkLoader.CuDnnLayerDeserialize(stream, layerType);
-                        if (layer == null) layer = NetworkLoader.CpuLayerDeserialize(stream, layerType);
+                        var layer = NetworkLoader.CpuLayerDeserialize(stream, layerType);
                         if (layer == null) return null;
                         map[id] = new NodeBuilder(type, new LayerFactory(_ => layer));
                         break;

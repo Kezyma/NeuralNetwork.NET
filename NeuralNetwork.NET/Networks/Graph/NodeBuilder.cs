@@ -110,9 +110,7 @@ namespace NeuralNetworkNET.Networks.Graph
         [MustUseReturnValue, NotNull]
         public NodeBuilder Sum(ActivationType activation, params NodeBuilder[] inputs)
         {
-            ExecutionModePreference mode = CuDnnNetworkLayers.IsCudaSupportAvailable
-                ? ExecutionModePreference.Cuda
-                : ExecutionModePreference.Cpu;
+            ExecutionModePreference mode = ExecutionModePreference.Cpu;
             return New(ComputationGraphNodeType.Sum, (activation, mode), inputs);
         }
 

@@ -9,6 +9,7 @@ using NeuralNetworkNET.Helpers;
 using NeuralNetworkNET.SupervisedLearning.Data;
 using NeuralNetworkNET.SupervisedLearning.Parameters;
 using NeuralNetworkNET.SupervisedLearning.Progress;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
@@ -19,6 +20,7 @@ namespace NeuralNetworkNET.APIs
     /// </summary>
     public static class DatasetLoader
     {
+        
         #region Training
 
         /// <summary>
@@ -63,11 +65,11 @@ namespace NeuralNetworkNET.APIs
         [PublicAPI]
         [Pure, NotNull]
         [CollectionAccess(CollectionAccessType.Read)]
-        public static ITrainingDataset Training<TPixel>([NotNull] IEnumerable<(string X, float[] Y)> data, int size, ImageNormalizationMode normalization, [NotNull, ItemNotNull] params Action<IImageProcessingContext<TPixel>>[] modifiers)
-            where TPixel : struct, IPixel<TPixel>
+        public static ITrainingDataset Training<TPixel>([NotNull] IEnumerable<(string X, float[] Y)> data, int size, ImageNormalizationMode normalization, [NotNull, ItemNotNull] params Action<IImageProcessingContext>[] modifiers)
+            where TPixel : unmanaged, IPixel<TPixel>
         {
             return BatchesCollection.From(modifiers.Length > 0 
-                ? data.SelectMany(xy => modifiers.Select<Action<IImageProcessingContext<TPixel>>, Func<(float[], float[])>>(f => () => (ImageLoader.Load(xy.X, normalization, f), xy.Y))) 
+                ? data.SelectMany(xy => modifiers.Select<Action<IImageProcessingContext>, Func<(float[], float[])>>(f => () => (ImageLoader.Load<TPixel>(xy.X, normalization, f), xy.Y))) 
                 : data.Select<(string X, float[] Y), Func<(float[], float[])>>(xy => () => (ImageLoader.Load<TPixel>(xy.X, normalization, null), xy.Y)), size);
         }
 
@@ -83,11 +85,11 @@ namespace NeuralNetworkNET.APIs
         [PublicAPI]
         [Pure, NotNull]
         [CollectionAccess(CollectionAccessType.Read)]
-        public static ITrainingDataset Training<TPixel>([NotNull] IEnumerable<(string X, Func<float[]> Y)> data, int size, ImageNormalizationMode normalization, [NotNull, ItemNotNull] params Action<IImageProcessingContext<TPixel>>[] modifiers)
-            where TPixel : struct, IPixel<TPixel>
+        public static ITrainingDataset Training<TPixel>([NotNull] IEnumerable<(string X, Func<float[]> Y)> data, int size, ImageNormalizationMode normalization, [NotNull, ItemNotNull] params Action<IImageProcessingContext>[] modifiers)
+            where TPixel : unmanaged, IPixel<TPixel>
         {
             return BatchesCollection.From(modifiers.Length > 0 
-                ? data.SelectMany(xy => modifiers.Select<Action<IImageProcessingContext<TPixel>>, Func<(float[], float[])>>(f => () => (ImageLoader.Load(xy.X, normalization, f), xy.Y()))) 
+                ? data.SelectMany(xy => modifiers.Select<Action<IImageProcessingContext>, Func<(float[], float[])>>(f => () => (ImageLoader.Load<TPixel>(xy.X, normalization, f), xy.Y()))) 
                 : data.Select<(string X, Func<float[]> Y), Func<(float[], float[])>>(xy => () => (ImageLoader.Load<TPixel>(xy.X, normalization, null), xy.Y())), size);
         }
 
@@ -145,11 +147,11 @@ namespace NeuralNetworkNET.APIs
         [CollectionAccess(CollectionAccessType.Read)]
         public static IValidationDataset Validation<TPixel>(
             [NotNull] IEnumerable<(string X, float[] Y)> data, float tolerance = 1e-2f, int epochs = 5, 
-            ImageNormalizationMode normalization = ImageNormalizationMode.Sigmoid, [NotNull, ItemNotNull] params Action<IImageProcessingContext<TPixel>>[] modifiers)
-            where TPixel : struct, IPixel<TPixel>
+            ImageNormalizationMode normalization = ImageNormalizationMode.Sigmoid, [NotNull, ItemNotNull] params Action<IImageProcessingContext>[] modifiers)
+            where TPixel : unmanaged, IPixel<TPixel>
         {
             return Validation((modifiers.Length > 0
-                ? data.SelectMany(xy => modifiers.Select<Action<IImageProcessingContext<TPixel>>, Func<(float[], float[])>>(f => () => (ImageLoader.Load(xy.X, normalization, f), xy.Y)))
+                ? data.SelectMany(xy => modifiers.Select<Action<IImageProcessingContext>, Func<(float[], float[])>>(f => () => (ImageLoader.Load<TPixel>(xy.X, normalization, f), xy.Y)))
                 : data.Select<(string X, float[] Y), Func<(float[], float[])>>(xy => () => (ImageLoader.Load<TPixel>(xy.X, normalization, null), xy.Y))).AsParallel(), tolerance, epochs);
         }
 
@@ -168,11 +170,11 @@ namespace NeuralNetworkNET.APIs
         [CollectionAccess(CollectionAccessType.Read)]
         public static IValidationDataset Validation<TPixel>(
             [NotNull] IEnumerable<(string X, Func<float[]> Y)> data, float tolerance = 1e-2f, int epochs = 5, 
-            ImageNormalizationMode normalization = ImageNormalizationMode.Sigmoid, [NotNull, ItemNotNull] params Action<IImageProcessingContext<TPixel>>[] modifiers)
-            where TPixel : struct, IPixel<TPixel>
+            ImageNormalizationMode normalization = ImageNormalizationMode.Sigmoid, [NotNull, ItemNotNull] params Action<IImageProcessingContext>[] modifiers)
+            where TPixel : unmanaged, IPixel<TPixel>
         {
             return Validation((modifiers.Length > 0
-                ? data.SelectMany(xy => modifiers.Select<Action<IImageProcessingContext<TPixel>>, Func<(float[], float[])>>(f => () => (ImageLoader.Load(xy.X, normalization, f), xy.Y())))
+                ? data.SelectMany(xy => modifiers.Select<Action<IImageProcessingContext>, Func<(float[], float[])>>(f => () => (ImageLoader.Load<TPixel>(xy.X, normalization, f), xy.Y())))
                 : data.Select<(string X, Func<float[]> Y), Func<(float[], float[])>>(xy => () => (ImageLoader.Load<TPixel>(xy.X, normalization, null), xy.Y()))).AsParallel(), tolerance, epochs);
         }
 
@@ -226,11 +228,11 @@ namespace NeuralNetworkNET.APIs
         [CollectionAccess(CollectionAccessType.Read)]
         public static ITestDataset Test<TPixel>(
             [NotNull] IEnumerable<(string X, float[] Y)> data, [CanBeNull] Action<TrainingProgressEventArgs> progress = null
-            , ImageNormalizationMode normalization = ImageNormalizationMode.Sigmoid, [NotNull, ItemNotNull] params Action<IImageProcessingContext<TPixel>>[] modifiers)
-            where TPixel : struct, IPixel<TPixel>
+            , ImageNormalizationMode normalization = ImageNormalizationMode.Sigmoid, [NotNull, ItemNotNull] params Action<IImageProcessingContext>[] modifiers)
+            where TPixel : unmanaged, IPixel<TPixel>
         {
             return Test((modifiers.Length > 0
-                ? data.SelectMany(xy => modifiers.Select<Action<IImageProcessingContext<TPixel>>, Func<(float[], float[])>>(f => () => (ImageLoader.Load(xy.X, normalization, f), xy.Y)))
+                ? data.SelectMany(xy => modifiers.Select<Action<IImageProcessingContext>, Func<(float[], float[])>>(f => () => (ImageLoader.Load<TPixel>(xy.X, normalization, f), xy.Y)))
                 : data.Select<(string X, float[] Y), Func<(float[], float[])>>(xy => () => (ImageLoader.Load<TPixel>(xy.X, normalization, null), xy.Y))).AsParallel(), progress);
         }
 
@@ -248,14 +250,16 @@ namespace NeuralNetworkNET.APIs
         [CollectionAccess(CollectionAccessType.Read)]
         public static ITestDataset Test<TPixel>(
             [NotNull] IEnumerable<(string X, Func<float[]> Y)> data, [CanBeNull] Action<TrainingProgressEventArgs> progress = null, 
-            ImageNormalizationMode normalization = ImageNormalizationMode.Sigmoid, [NotNull, ItemNotNull] params Action<IImageProcessingContext<TPixel>>[] modifiers)
-            where TPixel : struct, IPixel<TPixel>
+            ImageNormalizationMode normalization = ImageNormalizationMode.Sigmoid, [NotNull, ItemNotNull] params Action<IImageProcessingContext>[] modifiers)
+            where TPixel : unmanaged, IPixel<TPixel>
         {
             return Test((modifiers.Length > 0
-                ? data.SelectMany(xy => modifiers.Select<Action<IImageProcessingContext<TPixel>>, Func<(float[], float[])>>(f => () => (ImageLoader.Load(xy.X, normalization, f), xy.Y())))
+                ? data.SelectMany(xy => modifiers.Select<Action<IImageProcessingContext>, Func<(float[], float[])>>(f => () => (ImageLoader.Load<TPixel>(xy.X, normalization, f), xy.Y())))
                 : data.Select<(string X, Func<float[]> Y), Func<(float[], float[])>>(xy => () => (ImageLoader.Load<TPixel>(xy.X, normalization, null), xy.Y()))).AsParallel(), progress);
         }
 
         #endregion
+        
+        
     }
 }

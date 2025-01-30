@@ -45,13 +45,13 @@ namespace NeuralNetworkNET.Networks.Implementations
         /// <summary>
         /// The underlying layers graph for the network
         /// </summary>
-        [NotNull]
+        [JetBrains.Annotations.NotNull]
         [JsonProperty(nameof(Graph), Order = 7)]
         private readonly ComputationGraph Graph;
         
         #endregion
 
-        public ComputationGraphNetwork([NotNull] ComputationGraph graph) : base(NetworkType.ComputationGraph)
+        public ComputationGraphNetwork([JetBrains.Annotations.NotNull] ComputationGraph graph) : base(NetworkType.ComputationGraph)
         {
             Graph = graph;
             OutputLayer = Graph.OutputNode.To<IComputationGraphNode, ProcessingNode>().Layer.To<INetworkLayer, OutputLayerBase>();
@@ -373,7 +373,7 @@ namespace NeuralNetworkNET.Networks.Implementations
         }
 
         // Executes the forward pass on a merge node, if possible
-        private static unsafe bool TryExecuteMergeForward([NotNull] TensorMap<IComputationGraphNode> map, [NotNull] SumNode sum, out Tensor z, out Tensor a)
+        private static unsafe bool TryExecuteMergeForward([JetBrains.Annotations.NotNull] TensorMap<IComputationGraphNode> map, [JetBrains.Annotations.NotNull] SumNode sum, out Tensor z, out Tensor a)
         {
             // Prepare the inputs
             Tensor* xs = stackalloc Tensor[sum.Parents.Count];
@@ -392,7 +392,7 @@ namespace NeuralNetworkNET.Networks.Implementations
         }
 
         // Executes the forward pass on a depth concatenation node, if possible
-        private static unsafe bool TryExecuteMergeForward([NotNull] TensorMap<IComputationGraphNode> map, [NotNull] DepthConcatenationNode concatenation, out Tensor y)
+        private static unsafe bool TryExecuteMergeForward([JetBrains.Annotations.NotNull] TensorMap<IComputationGraphNode> map, [JetBrains.Annotations.NotNull] DepthConcatenationNode concatenation, out Tensor y)
         {
             // Prepare the inputs
             Tensor* xs = stackalloc Tensor[concatenation.Parents.Count];
@@ -506,7 +506,7 @@ namespace NeuralNetworkNET.Networks.Implementations
         /// <param name="stream">The input <see cref="Stream"/> to use to read the network data</param>
         /// <param name="preference">The layers deserialization preference</param>
         [MustUseReturnValue, CanBeNull]
-        public static INeuralNetwork Deserialize([NotNull] Stream stream, ExecutionModePreference preference)
+        public static INeuralNetwork Deserialize([JetBrains.Annotations.NotNull] Stream stream, ExecutionModePreference preference)
         {
             if (!stream.TryRead(out TensorInfo inputs)) return null;
             Func<TensorInfo, ComputationGraph> f = ComputationGraph.Deserialize(stream, preference);
